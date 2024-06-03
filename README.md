@@ -167,6 +167,31 @@ reduce the training time.
 
 Enjoy the life :)
 
+## MOSEAC Hypermeter Sheet for the above result
+
+| Name                                        | Value           | Annotation                                       |
+|---------------------------------------------|-----------------|--------------------------------------------------|
+| **Total steps**                             | 3e6             |                                                  |
+| **$\gamma$**                                | 0.95            | Discount factor                                  |
+| **Net shape**                               | (256, 256, 256) |                                                  |
+| **batch\_size**                             | 256             |                                                  |
+| **a\_lr**                                   | 3e-4            | Learning rate of Actor Network                   |
+| **c\_lr**                                   | 3e-4            | Learning rate of Critic Network                  |
+| **max\_steps**                              | 500             | Maximum steps for one episode                    |
+| **$\alpha$**                                | 0.12            |                                                  |
+| **$\eta$**                                  | -3              | Refer to [SAC](https://arxiv.org/pdf/1812.05905) |
+| **min\_time**                               | 0.02            | Minimum control duration, in seconds             |
+| **max\_time**                               | 0.5             | Maximum control duration, in seconds             |
+| **$\alpha_{m}-max$**                        | 3.0             | Maximum value for **$\alpha_{m}$**               |
+| **$\alpha_{m}$**                            | 1.0             | Init value of $\alpha_{m}$                       |
+| **$\psi$**                                  | 1e-4            | Monotonically increasing H-parameter             |
+| **Optimizer**                               | Adam            | Refer to [Adam](https://arxiv.org/abs/1412.6980) |
+| **environment steps**                       | 1               |                                                  |
+| **Replaybuffer size**                       | 1e5             |                                                  |
+| **Number of samples before training start** | 5 * max_steps   |                                                  |
+| **Number of critics**                       | 2               |                                                  |
+
+
 ## Results
 
 ### The average reward graph
@@ -322,6 +347,10 @@ source install/setup.bash
 ```
 Then we can copy the limo_ws folder to the agx_workspace folder, remember to change the launch files. Then it is about 
 fine to support ROS2.
+
+## More details
+
+Please refer to our paper here for the MOSEAC mathmatic and experiment details
 
 ## License
 MIT
