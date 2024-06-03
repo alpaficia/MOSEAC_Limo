@@ -5,17 +5,26 @@ navigation task.
 
 <img src="fig/limo.png" style="zoom:50%" />
 
+## The workflow and the real test environment
+
 The two parts are applied to both simulation and the real, the workflow is shown as below:
 
 <img src="fig/limo_framework.jpg" style="zoom:50%" />
 
-## First, collect dataset manually in the real world with a real limo
+We use the [OptiTrack](https://www.optitrack.com/) product to do the location function. As shown below:
 
-We use the [OptiTrack](https://www.optitrack.com/) product to do the location function. So if you are also use this 
-product, you can change the IP address within the `Dateset.py` and `action_publisher.py` files to function them. 
+<img src="fig/map.jpg" style="zoom:50%" />
+
+So if you are also use this product, you can change the IP address within the `Dateset.py` and `action_publisher.py` 
+files to function them. Or if you are planning to use this product, 
+[here](https://docs.optitrack.com/quick-start-guides/quick-start-guide-getting-started) is the tutorial of how to set 
+it up. 
+
 Otherwise, you need to figure out another way to meet the location function in these two file.
 
-The first step is always:
+## Collect dataset manually in the real world with a real limo
+
+OK, let's begin, the first step is always:
 
 `git clone https://github.com/alpaficia/MOSEAC_Limo.git`
 
@@ -167,6 +176,24 @@ reduce the training time.
 
 Enjoy the life :)
 
+## Transformer (environment model) Hypermeter Sheet
+
+| Hyperparameter     | Value | Description                                                   |
+|--------------------|-------|---------------------------------------------------------------|
+| input_dim          | 7     | Number of input features for the model                        |
+| output_dim         | 2     | Number of output features for the model                       |
+| dropout_rate       | 0.1   | Dropout rate for regularization                               |
+| d_model            | 128   | Dimension of the input and output of the transformer layers   |
+| nhead              | 8     | Number of heads in the multi-head attention mechanism         |
+| num_layers         | 3     | Number of transformer encoder layers                          |
+| lr                 | 0.001 | Learning rate for the optimizer                               |
+| weight_decay       | 1e-4  | Weight decay (L2 regularization) for the optimizer            |
+| batch_size         | 64    | Batch size for training and validation                        |
+| early_stopping_patience | 10    | Patience for early stopping                                   |
+| epochs             | 200   | Maximum number of training epochs                             |
+
+
+
 ## MOSEAC Hypermeter Sheet for the above result
 
 | Name                                        | Value           | Annotation                                       |
@@ -210,9 +237,15 @@ Our result video is available on [YouTuBe](https://youtu.be/QmhWLi58gS8).
 
 ### Docker support
 
-You are supported to run with docker. The dockerfile is ready in `limo_ws/src/limo_policy/src`. Be aware that you need 
+You are supported to run with docker. 
+
+- For the simulation training, the dockerfile is ready in `limo_sim`, you can build a container and launch it to a cloud
+computer.
+
+- The dockerfile for the real limo implement is ready in `limo_ws/src/limo_policy/src`. Be aware that you need 
 to download the [cuDNN 8.2](https://drive.google.com/file/d/1XyUzO00QNxRwpXTVjrTII5ZzzRFCMUw5/view?usp=drive_link) 
-and [TensorRT 8.2](https://drive.google.com/file/d/1O1CRFPdrCF_6wgtc7QUWWe5GPnK3xkwW/view?usp=drive_link).
+and [TensorRT 8.2](https://drive.google.com/file/d/1O1CRFPdrCF_6wgtc7QUWWe5GPnK3xkwW/view?usp=drive_link) to build the 
+container.
 
 ### ROS2 Support
 
@@ -329,7 +362,7 @@ docker run --network=host \
 After you successfully create the container, you can use ros2 foxy inside it. Meanwhile, if you build your image 
 locally, please change your docker image name at the end.
 
-## First Init
+### First Init
 You need to get the ID of your container by:
 ```
 docker ps
@@ -350,7 +383,7 @@ fine to support ROS2.
 
 ## More details
 
-Please refer to our paper here for the MOSEAC mathmatic and experiment details
+Please refer to our paper here for the MOSEAC mathematics and experiment details
 
 ## License
 MIT
