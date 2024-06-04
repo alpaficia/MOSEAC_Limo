@@ -1,0 +1,5 @@
+<launch>
+    <!-- Action Publisher -->
+    <node pkg="limo_policy" type="action_publisher.py" name="action_publisher" output="screen"/>
+</launch>
+
