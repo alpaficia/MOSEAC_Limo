@@ -167,9 +167,10 @@ You can find that the state and action values are stored to the path you are giv
 
 In your PC:
 
-Edit the path in the `PATH_TO_YOUR_FOLDER/MOSEAC_Limo/limo_sim/fine_tune.py`, then:
+Edit the path in the `PATH_TO_YOUR_FOLDER/MOSEAC_Limo/limo_sim/transformer/fine_tune.py`, then:
 
-`python3 PATH_TO_YOUR_FOLDER/MOSEAC_Limo/limo_sim/fine_tune.py` to fine tune your environment model.
+`python3 PATH_TO_YOUR_FOLDER/MOSEAC_Limo/limo_sim/transformer/fine_tune.py` to fine tune your environment model, if you 
+are using the four wheels model, please update the `limo_model_with_friction_and_power` function to the four wheel model.
 
 After that, you need to retrain your MOSEAC model. You can enable the check point function in the `main.py` file to 
 reduce the training time.
