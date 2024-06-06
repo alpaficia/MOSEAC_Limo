@@ -231,6 +231,7 @@ class ActionPublisher:
 
     def dynamic_publish_loop(self):
         practitioner = Optitrack()
+        t = 0
         while not rospy.is_shutdown():
             start_time = rospy.Time.now()
             practitioner.read_new_data()
@@ -238,56 +239,65 @@ class ActionPublisher:
             if np.isnan(self.limo_position).any():
                 rospy.loginfo("Optitrack bad, waiting for correction...")
                 continue
-            radar = self.map.radar_intersections(self.limo_position)
-            radar = radar.reshape(-1)
-            limo_position_uni = self.limo_position / self.world_size
-            radar_no_shape_uni = radar / self.world_size
-            goal_uni = self.goal / self.world_size
-            control_duration_uniform = (self.control_duration - self.min_time) / (self.max_time - self.min_time)
-            state = np.concatenate(
-                [
-                    limo_position_uni,
-                    goal_uni,
-                    self.linear_speed,
-                    self.angular_speed,
-                    control_duration_uniform,
-                    self.cmd_old,
-                    radar_no_shape_uni,
-                ],
-                axis=0,
-            )
-            self.state_recorder.append(state)
-            output_data = self.predict_function(state)
-            a_t = output_data[0][0]
-            a_s = output_data[0][1:3]
-            act_s = Action_adapter(a_s, self.max_action_s)
-            act_t = Action_t_relu6_adapter(a_t, self.min_time, self.max_time)
-            act_t = np.array([act_t])
-            act = np.concatenate([act_t, act_s], axis=0)
-            self.action_recorder.append(act)
-            dis2goal = distance(self.limo_position, self.goal)
-            tuple_pos = tuple(self.limo_position.tolist())
-            in_area = is_point_in_polygon(tuple_pos, self.out_walls)
-            if dis2goal >= self.judge_dis and in_area:
-                self.control_duration = np.array([float(act[0])])
-                linear_velocity = float(act[1])
-                angular_velocity = float(act[2])
-                self.publish_cmd_vel(linear_velocity, angular_velocity)
-                rospy.loginfo("Sending velocity command...")
-                rospy.loginfo("Published control duration: %s", act[0])
-            else:
+            if t == 0:
+                sleep_duration = 1.0
                 linear_velocity = 0.0
                 angular_velocity = 0.0
                 self.publish_cmd_vel(linear_velocity, angular_velocity)
-                rospy.loginfo("I have arrived the goal or I'm out of area, stopped")
-                self.control_duration = np.array([0.5])
-            self.cmd_old = np.array([linear_velocity, angular_velocity])
-            self.linear_speed = np.array([linear_velocity])
-            self.angular_speed = np.array([angular_velocity])
-            elapsed_time = rospy.Time.now() - start_time
-            sleep_duration = float(self.control_duration - elapsed_time.to_sec())
-            if sleep_duration > 0.0:
+                rospy.loginfo("init the wheels position for the first launch...")
                 rospy.sleep(sleep_duration)
+                t += 1
+            else:
+                radar = self.map.radar_intersections(self.limo_position)
+                radar = radar.reshape(-1)
+                limo_position_uni = self.limo_position / self.world_size
+                radar_no_shape_uni = radar / self.world_size
+                goal_uni = self.goal / self.world_size
+                control_duration_uniform = (self.control_duration - self.min_time) / (self.max_time - self.min_time)
+                state = np.concatenate(
+                    [
+                        limo_position_uni,
+                        goal_uni,
+                        self.linear_speed,
+                        self.angular_speed,
+                        control_duration_uniform,
+                        self.cmd_old,
+                        radar_no_shape_uni,
+                    ],
+                    axis=0,
+                )
+                self.state_recorder.append(state)
+                output_data = self.predict_function(state)
+                a_t = output_data[0][0]
+                a_s = output_data[0][1:3]
+                act_s = Action_adapter(a_s, self.max_action_s)
+                act_t = Action_t_relu6_adapter(a_t, self.min_time, self.max_time)
+                act_t = np.array([act_t])
+                act = np.concatenate([act_t, act_s], axis=0)
+                self.action_recorder.append(act)
+                dis2goal = distance(self.limo_position, self.goal)
+                tuple_pos = tuple(self.limo_position.tolist())
+                in_area = is_point_in_polygon(tuple_pos, self.out_walls)
+                if dis2goal >= self.judge_dis and in_area:
+                    self.control_duration = np.array([float(act[0])])
+                    linear_velocity = float(act[1])
+                    angular_velocity = float(act[2])
+                    self.publish_cmd_vel(linear_velocity, angular_velocity)
+                    rospy.loginfo("Sending velocity command...")
+                    rospy.loginfo("Published control duration: %s", act[0])
+                else:
+                    linear_velocity = 0.0
+                    angular_velocity = 0.0
+                    self.publish_cmd_vel(linear_velocity, angular_velocity)
+                    rospy.loginfo("I have arrived the goal or I'm out of area, stopped")
+                    self.control_duration = np.array([0.5])
+                self.cmd_old = np.array([linear_velocity, angular_velocity])
+                self.linear_speed = np.array([linear_velocity])
+                self.angular_speed = np.array([angular_velocity])
+                elapsed_time = rospy.Time.now() - start_time
+                sleep_duration = float(self.control_duration - elapsed_time.to_sec())
+                if sleep_duration > 0.0:
+                    rospy.sleep(sleep_duration)
         df_s = pd.DataFrame(self.state_recorder)
         df_a = pd.DataFrame(self.action_recorder)
         df_s.to_csv('CHANGE PATH TO YOUR DATASET', index=False)

@@ -135,8 +135,6 @@ class LimoEnv(gym.Env):
         self.success_reward = 500.0
         self.cross_punish = -30.0
         self.dead_punish = -100.0
-        self.hash_reward = 5.0
-        self.hash_cell_size = (30, 30)
         self._wall_location = self.map.get_wall()
         self._wall_location_uniform = self._wall_location.reshape(-1)
         self._target_location = None  # target location info, in (x, y)
