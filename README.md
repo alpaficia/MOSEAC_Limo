@@ -1,100 +1,94 @@
 # MOSEAC Implementation on Agilex Limo
 
-These codes are aimed to apply the MOSEAC algorithm to the Agilex Limo product for a Reinforcement Learning (RL) 
-navigation task.
+This repository contains the implementation of the MOSEAC algorithm for the Agilex Limo, designed for a Reinforcement 
+Learning (RL) navigation task.
 
-<img src="fig/limo.png" style="zoom:50%" />
+![Limo](fig/limo.png)
 
-## The workflow and the real test environment
 
-The two parts are applied to both simulation and the real, the workflow is shown as below:
+## Workflow and Test Environment
 
-<img src="fig/limo_framework.jpg" style="zoom:50%" />
+The workflow is applied to both simulation and real-world environments, as shown below:
 
-We use the [OptiTrack](https://www.optitrack.com/) product to do the location function. As shown below:
+![Workflow](fig/limo_framework.jpg)
 
-<img src="fig/map.jpg" style="zoom:50%" />
+We use [OptiTrack](https://www.optitrack.com/) for location tracking, as illustrated below:
 
-So if you are also use this product, you can change the IP address within the `Dateset.py` and `action_publisher.py` 
-files to function them. Or if you are planning to use this product, 
-[here](https://docs.optitrack.com/quick-start-guides/quick-start-guide-getting-started) is the tutorial of how to set 
-it up. 
+![Map](fig/map.jpg)
 
-Otherwise, you need to figure out another way to meet the location function in these two file.
+If you're using OptiTrack, update the IP address in `Dataset.py` and `action_publisher.py`. For setup instructions, 
+refer to the [OptiTrack Quick Start Guide](https://docs.optitrack.com/quick-start-guides/quick-start-guide-getting-started). 
+Otherwise, find an alternative method for location tracking in these files.
 
-## Collect dataset manually in the real world with a real limo
 
-OK, let's begin, the first step is always:
+## Collecting Data with the Real Limo
 
-`git clone https://github.com/alpaficia/MOSEAC_Limo.git`
+To get started, clone the repository and copy the `Dataset.py` file to your Limo:
 
-And copy the `/MOSEAC_Limo/limo_sim/transformer/Dataset.py` file in to your Limo, for example:
+```bash
+git clone https://github.com/alpaficia/MOSEAC_Limo.git
+scp PATH_TO_REPO/MOSEAC_Limo/limo_sim/transformer/Dataset.py agilex@LIMO_IP_ADDRESS:PATH_TO_YOUR_FOLDER
+```
 
-`scp PATH_TO_THE_FOLDER/MOSEAC_Limo/limo_sim/transformer/Dataset.py agilex@LIMO_IP_ADDRESS:PATH_TO_YOUR_FOLDER`
+Select a site (we used the default Limo map) and prepare a joystick to control the Limo.
 
-Then, select one site where you aimed to apply the code (we select the default Limo map), and ready a joystick to 
-control the Limo.
+Once your Limo is set up on the map, enable basic control. We provide two simulation modes: FourWheels and Ackerman. 
+Details can be found [here](https://github.com/agilexrobotics/limo-doc).
 
-Once you set up your Limo on the map, you need to enable the limo basic control method. We provided two different Limo 
-Movement physic simulation modes. The FourWheels and Ackerman method. Details can be found in 
-[here](https://github.com/agilexrobotics/limo-doc).
+Enable basic control and joystick control (Limo uses ROS melodic by default; modify commands if using another ROS 
+version):
 
-Then you need to enable the basic control and joystick control by (the Limo is using ROS melodic by default, if you are 
-using other version of ROS, you'd change the commands yourself):
+On the real Limo with Ubuntu 18.04 OS:
 
-In the real Limo Ubuntu 18.04 OS:
+```
+cd agilex_ws
+catkin build
+cd source devel/setup.bash
+roslaunch limo_base limo_base.launch
+rosrun joy joy_node
+rosrun teleop_twist_joy teleop_node
+```
+Press the A button on the joystick to control your Limo. Once ready, launch the dataset collection code:
 
-`cd agilex_ws`
+```python3 PATH_TO_YOUR_FILE/Dataset.py```
 
-`catkin build`
+Press the S button to start collection, play with your Limo, and press T to stop. Collect at least 50,000 data points.
 
-`cd source devel/setup.bash`
+## Training the Environment Model
 
-`roslaunch limo_base limo_base.launch`
+Ensure you have PyTorch installed. If not, follow the guide [here](https://pytorch.org/). Then launch the training code:
 
-`rosrun joy joy_node` 
-
-`rosrun teleop_twist_joy teleop_node`
-
-Press A button on the joystick, then you can control your limo though the joystick.
-Once your make everything ready, launch the dataset code to collect the dataset.
-
-`python3 PATH_TO_YOUR_FILE/Dataset.py`
-
-Press S button on the keyboard to start collection; Play with your Limo; and Press T button to stop. We recommended to 
-collect at least 50 thousands data.
-
-## Train an Environment for the RL to achieve real to sim
-
-In your PC:
-
-Make sure that you have installed the pytorch, if not, you can follow the guide [here](https://pytorch.org/)
+```bash
+python3 PATH_TO_FOLDER/MOSEAC_Limo/limo_sim/transformer/train.py
+```
 Then launch the training code to get the environment model, **remember to change the path** in side the training code:
 
 `python3 PATH_TO_THE_FOLDER/MOSEAC_Limo/limo_sim/transformer/train.py` (If you are using the Ackerman Mode)
 
 Or `python3 PATH_TO_THE_FOLDER/MOSEAC_Limo/limo_sim/transformer/train_4w.py` (If you are using the FourWheel Mode)
 
-## Train a MOSEAC policy to achieve the elastic time step control method
+## Training the MOSEAC Policy
 
-Edit the model path in the `MOSEAC_Limo/limo_sim/envs/limo_world.py` to upload your trained environment.
-Then you can launch the MOSEAC training though:
+Edit the model path in `MOSEAC_Limo/limo_sim/envs/limo_world.py` to upload your trained environment. Then launch 
+the MOSEAC training:
+
 
 `python3 PATH_TO_THE_FOLDER/MOSEAC_Limo/limo_sim/main.py`
 
-There are more explain and note can be found in the `main.py`, `MOSEAC.py` and `limo_world.py`, if you are interested in
-the implementation, please check them.
+More details can be found in main.py, MOSEAC.py, and limo_world.py. If you're interested in the implementation, 
+please check these files.
 
-After the training, you can use `tensorboard` to check the recorded log, and find the best model. You need the selected 
-`moseac_actor{id}.pth` file for the next step.
+After training, use tensorboard to check the logs and find the best model. You'll need the moseac_actor{id}.pth file 
+for the next step.
+
 
 ## Validate the performance on the real limo
 
-We applied the model to the Limo though TensorRT. You need to install the cuDNN and the TensorRT first. Since the Limo 
-is equipped with Jetson Nano, which is a quite old onboard Nvidia product. It can only support up to JetPack 4.6, which 
-is supposed to run with [cuDNN 8.2](https://drive.google.com/file/d/1XyUzO00QNxRwpXTVjrTII5ZzzRFCMUw5/view?usp=drive_link) 
-and [TensorRT 8.2](https://drive.google.com/file/d/1O1CRFPdrCF_6wgtc7QUWWe5GPnK3xkwW/view?usp=drive_link), now they are 
-not available online. So, we provided the sources, you can download and install them in your Limo.
+We applied the model to the Limo using TensorRT. First, you need to install cuDNN and TensorRT. Since the Limo is 
+equipped with the older Nvidia Jetson Nano, it only supports up to JetPack 4.6, which runs with 
+[cuDNN 8.2](https://drive.google.com/file/d/1XyUzO00QNxRwpXTVjrTII5ZzzRFCMUw5/view?usp=drive_link) and 
+[TensorRT 8.2](https://drive.google.com/file/d/1O1CRFPdrCF_6wgtc7QUWWe5GPnK3xkwW/view?usp=drive_link). These versions 
+are no longer available online, so we have provided the sources for download and installation on your Limo.
 
 In your PC:
 
@@ -158,10 +152,10 @@ Then goes back to the old terminal:
 
 ## Environment Fine Tune
 
-You may find that there is a gap between the simulation environment and the real, since your joystick control frequency
-is high, so it may affect the performance of the simulated environment. So you need to fine tune the model. We have 
-defined the `is_point_in_polygon` function in the `action_publisher.py` file to be the insurance function. That makes 
-the Limo stop when it moves out of the map. You can change this function to meet your requirement.
+You may notice a gap between the simulation environment and the real-world performance due to the high frequency of 
+joystick control, which can affect the simulated environment. To address this, you need to fine-tune the model. We 
+have defined the `is_point_in_polygon` function in the `action_publisher.py` file as a safety measure, which stops 
+the Limo when it moves out of the map. You can modify this function to suit your needs.
 
 You can find that the state and action values are stored to the path you are given. Copy them from the Limo to your PC.
 

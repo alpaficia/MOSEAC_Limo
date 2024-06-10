@@ -117,7 +117,7 @@ def load_engine(engine_path):
 def adapt_output(output):
     output = output.squeeze()
     adapted_output = np.zeros(output.shape, dtype=np.float32)
-    adapted_output[0] = np.interp(output[0], [0, 6], [0.02, 1.0])  # Adapt to seconds
+    adapted_output[0] = np.interp(output[0], [0, 6], [0.02, 0.5])  # Adapt to seconds
     adapted_output[1] = np.interp(output[1], [-1, 1], [-1.0, 1.0])
     adapted_output[2] = np.interp(output[2], [-1, 1], [-1.0, 1.0])
     return adapted_output
