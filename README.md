@@ -226,7 +226,7 @@ Enjoy the life :)
 
 ### The video
 
-Our result video is available on [YouTuBe](https://youtu.be/QmhWLi58gS8).
+Our result video is available on [YouTuBe](https://youtu.be/VhTa66WqxoU?si=Lgh8LzX2gTpe0ja8).
 
 ## Trouble Shooting
 
@@ -378,7 +378,7 @@ fine to support ROS2.
 
 ## More details
 
-Please refer to our paper here for the MOSEAC mathematics and experiment details
+Please refer to our [paper](https://arxiv.org/abs/2407.00290) here for the MOSEAC mathematics and experiment details
 
 ## License
 MIT
