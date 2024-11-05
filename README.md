@@ -213,6 +213,52 @@ Enjoy the life :)
 | **Number of samples before training start** | 5 * max_steps   |                                                  |
 | **Number of critics**                       | 2               |                                                  |
 
+## SEAC Hypermeter Sheet for the above result
+
+| Name                                        | Value           | Annotation                                       |
+|---------------------------------------------|-----------------|--------------------------------------------------|
+| **Total steps**                             | 3e6             |                                                  |
+| **$\gamma$**                                | 0.95            | Discount factor                                  |
+| **Net shape**                               | (256, 256, 256) |                                                  |
+| **batch\_size**                             | 256             |                                                  |
+| **a\_lr**                                   | 3e-4            | Learning rate of Actor Network                   |
+| **c\_lr**                                   | 3e-4            | Learning rate of Critic Network                  |
+| **max\_steps**                              | 500             | Maximum steps for one episode                    |
+| **$\alpha$**                                | 0.12            |                                                  |
+| **$\eta$**                                  | -3              | Refer to [SAC](https://arxiv.org/pdf/1812.05905) |
+| **min\_time**                               | 0.02            | Minimum control duration, in seconds             |
+| **max\_time**                               | 0.5             | Maximum control duration, in seconds             |
+| **$\alpha_{task}$**                         | 3.0             | Init value of $\alpha_{m}$                       |
+| **$\alpha_{eps}$**                          | 0.1             |                                                  |
+| **$\alpha_{tau}$**                          | 0.11            |                                                  |
+| **Optimizer**                               | Adam            | Refer to [Adam](https://arxiv.org/abs/1412.6980) |
+| **environment steps**                       | 1               |                                                  |
+| **Replaybuffer size**                       | 1e5             |                                                  |
+| **Number of samples before training start** | 5 * max_steps   |                                                  |
+| **Number of critics**                       | 2               |                                                  |
+
+## CTCO Hypermeter Sheet for the above result
+
+| Name                                        | Value           | Annotation                                       |
+|---------------------------------------------|-----------------|--------------------------------------------------|
+| **Total steps**                             | 3e6             |                                                  |
+| **$\gamma$**                                | 0.95            | Discount factor                                  |
+| **Net shape**                               | (256, 256, 256) |                                                  |
+| **batch\_size**                             | 256             |                                                  |
+| **a\_lr**                                   | 3e-4            | Learning rate of Actor Network                   |
+| **c\_lr**                                   | 3e-4            | Learning rate of Critic Network                  |
+| **max\_steps**                              | 500             | Maximum steps for one episode                    |
+| **$\alpha$**                                | 0.12            |                                                  |
+| **$\eta$**                                  | -3              | Refer to [SAC](https://arxiv.org/pdf/1812.05905) |
+| **min\_time**                               | 0.02            | Minimum control duration, in seconds             |
+| **max\_time**                               | 0.5             | Maximum control duration, in seconds             |
+| **$\tau$**                                  | 2.0             |                                                  |
+| **Optimizer**                               | Adam            | Refer to [Adam](https://arxiv.org/abs/1412.6980) |
+| **environment steps**                       | 1               |                                                  |
+| **Replaybuffer size**                       | 1e5             |                                                  |
+| **Number of samples before training start** | 5 * max_steps   |                                                  |
+| **Number of critics**                       | 2               |                                                  |
+
 
 ## Results
 
