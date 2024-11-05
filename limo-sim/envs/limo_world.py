@@ -111,7 +111,7 @@ class SimpleTransformer(nn.Module):
     def __init__(self, input_dim, output_dim, dropout_rate=0.1):
         super(SimpleTransformer, self).__init__()
         self.input_fc = nn.Linear(input_dim, 128)
-        self.dropout = nn.Dropout(dropout_rate)  # 添加Dropout层
+        self.dropout = nn.Dropout(dropout_rate)
         self.transformer_block = nn.TransformerEncoderLayer(d_model=128, nhead=8, dropout=dropout_rate,
                                                             batch_first=True)
         self.transformer_encoder = nn.TransformerEncoder(self.transformer_block, num_layers=3)
@@ -119,9 +119,10 @@ class SimpleTransformer(nn.Module):
 
     def forward(self, x):
         x = self.input_fc(x)
-        x = self.transformer_encoder(x.unsqueeze(1)).squeeze(1)
+        x = self.transformer_encoder(x)
+        x = x[:, -1, :]  # 取最后一个时间步的输出作为结果
         x = self.output_fc(x)
-        x[:, 0] = torch.relu(x[:, 0])  # 摩擦系数应该非负，使用ReLU，确保非负
+        x[:, 0] = torch.relu(x[:, 0])  # 确保摩擦系数非负
         return x
 
 
@@ -235,6 +236,13 @@ class LimoEnv(gym.Env):
             self._render_frame()
         return observation, info
 
+    def pad_sequence(self, input_data, sequence_length=10):
+        # 当数据不足10步时，用零填充
+        if input_data.shape[0] < sequence_length:
+            padding = torch.zeros(sequence_length - input_data.shape[0], input_data.shape[1])
+            input_data = torch.cat((padding, input_data), dim=0)
+        return input_data.unsqueeze(0)  # 添加 batch 维度
+
     def step(self, action):
 
         action_time = np.array([action[0]])  # the time for current action
@@ -242,7 +250,7 @@ class LimoEnv(gym.Env):
         input2model = np.concatenate([self._agent_location, self.agent_linear_speed, self.agent_yaw_speed,
                                       action_time, action_control], axis=0)
         input2model_tensor = torch.tensor(input2model)
-        input2model_tensor = input2model_tensor.unsqueeze(0)
+        input2model_tensor = self.pad_sequence(input2model_tensor, sequence_length=10)
         with torch.no_grad():
             bag = self.model(input2model_tensor.float())
             mu_k = bag[:, 0:1]

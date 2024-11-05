@@ -64,9 +64,17 @@ def load_csv_to_tensors(filepath):
     Y_tensor = torch.tensor(Y, dtype=torch.float32)
     return X_tensor, Y_tensor
 
+def create_sequences(X, y, sequence_length=10):
+    X_seq, y_seq = [], []
+    for i in range(len(X) - sequence_length + 1):
+        X_seq.append(X[i:i + sequence_length])
+        y_seq.append(y[i + sequence_length - 1])
+    return torch.stack(X_seq), torch.stack(y_seq)
+
 
 # 加载数据
 X, y = load_csv_to_tensors("CHANGE IT TO THE PATH TO YOUR DATASET")
+X, y = create_sequences(X, y, sequence_length=10)
 
 # 划分数据集为训练集、验证集和测试集
 total_size = len(X)
@@ -89,15 +97,17 @@ class SimpleTransformer(nn.Module):
         super(SimpleTransformer, self).__init__()
         self.input_fc = nn.Linear(input_dim, 128)
         self.dropout = nn.Dropout(dropout_rate)
-        self.transformer_block = nn.TransformerEncoderLayer(d_model=128, nhead=8, dropout=dropout_rate, batch_first=True)
+        self.transformer_block = nn.TransformerEncoderLayer(d_model=128, nhead=8, dropout=dropout_rate,
+                                                            batch_first=True)
         self.transformer_encoder = nn.TransformerEncoder(self.transformer_block, num_layers=3)
         self.output_fc = nn.Linear(128, output_dim)
 
     def forward(self, x):
         x = self.input_fc(x)
-        x = self.transformer_encoder(x.unsqueeze(1)).squeeze(1)
+        x = self.transformer_encoder(x)
+        x = x[:, -1, :]  # 取最后一个时间步的输出作为结果
         x = self.output_fc(x)
-        x[:, 0] = torch.relu(x[:, 0])  # 确保摩擦系数为非负
+        x[:, 0] = torch.relu(x[:, 0])  # 确保摩擦系数非负
         return x
 
 

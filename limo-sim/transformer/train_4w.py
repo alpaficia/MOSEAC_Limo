@@ -22,8 +22,15 @@ def load_csv_to_tensors(filepath):
 
     return X_tensor, Y_tensor
 
+def create_sequences(X, y, sequence_length=10):
+    X_seq, y_seq = [], []
+    for i in range(len(X) - sequence_length + 1):
+        X_seq.append(X[i:i + sequence_length])
+        y_seq.append(y[i + sequence_length - 1])
+    return torch.stack(X_seq), torch.stack(y_seq)
 
 X, y = load_csv_to_tensors("CHANGE IT TO YOUR DATASET")
+X, y = create_sequences(X, y, sequence_length=10)
 
 # 划分数据集为训练集、验证集和测试集
 total_size = len(X)
@@ -193,20 +200,21 @@ def evaluate_model(test_loader, model_path):
 
 
 class FourWheelsTransformer(nn.Module):
-    def __init__(self, input_dim, dropout_rate=0.1):
+    def __init__(self, input_dim, output_dim, dropout_rate=0.1):
         super(FourWheelsTransformer, self).__init__()
         self.input_fc = nn.Linear(input_dim, 128)
-        self.dropout = nn.Dropout(dropout_rate)  # 添加Dropout层
+        self.dropout = nn.Dropout(dropout_rate)
         self.transformer_block = nn.TransformerEncoderLayer(d_model=128, nhead=8, dropout=dropout_rate,
                                                             batch_first=True)
         self.transformer_encoder = nn.TransformerEncoder(self.transformer_block, num_layers=3)
-        self.output_fc = nn.Linear(128, 12)  # 输出维度为12
+        self.output_fc = nn.Linear(128, output_dim)
 
     def forward(self, x):
         x = self.input_fc(x)
-        x = self.transformer_encoder(x.unsqueeze(1)).squeeze(1)
+        x = self.transformer_encoder(x)
+        x = x[:, -1, :]  # 取最后一个时间步的输出作为结果
         x = self.output_fc(x)
-        x[:, -2:] = torch.relu(x[:, -2:])  # 对最后两个维度使用ReLU激活函数确保非负
+        x[:, 0] = torch.relu(x[:, 0])  # 确保摩擦系数非负
         return x
 
 
