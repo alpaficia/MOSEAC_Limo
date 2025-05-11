@@ -1,3 +1,7 @@
+# MOSEAC Implementation on Trackmania
+
+Please go to ```trackmania``` folder to see the details.
+
 # MOSEAC Implementation on Agilex Limo
 
 This repository contains the implementation of the MOSEAC algorithm for the Agilex Limo, designed for a Reinforcement 
@@ -9,7 +13,7 @@ Learning (RL) navigation task.
 ## Workflow and Test Environment
 
 The workflow is applied to both simulation and real-world environments, as shown below:
-
+[README.md](trackmania/README.md)
 ![Workflow](fig/limo_framework.jpg)
 
 We use [OptiTrack](https://www.optitrack.com/) for location tracking, as illustrated below:
